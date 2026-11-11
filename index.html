@@ -14,50 +14,52 @@
   --ink:#1d1b18;
   --mute:#6f6a60;
   --line:#1d1b18;
-  --acc:#ff5722;
+  --acc:#d9480f;
   --scope:#14110d;
   --trace:#ffb347;
   --grid:#3a342b;
-  --shadow: 4px 4px 0px #1d1b18;
+  --shadow: 3px 3px 0px #1d1b18;
   --shadow-sm: 2px 2px 0px #1d1b18;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#121212;
-    --panel:#1e1e1e;
-    --ink:#f4f1ea;
-    --mute:#a09a8e;
-    --line:#f4f1ea;
-    --acc:#ff7043;
+    --bg:#15130f;
+    --panel:#201d18;
+    --ink:#f1ece2;
+    --mute:#9b9486;
+    --line:#3a342b; /* 너무 튀지 않는 차분한 어두운 테두리 */
+    --acc:#ff8a3d;
     --scope:#0b0a08;
     --trace:#ffb347;
     --grid:#2a251e;
-    --shadow: 4px 4px 0px #f4f1ea;
-    --shadow-sm: 2px 2px 0px #f4f1ea;
+    --shadow: 3px 3px 0px #2a251e; /* 그림자도 부담스럽지 않게 조정 */
+    --shadow-sm: 2px 2px 0px #2a251e;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121212;
-  --panel:#1e1e1e;
-  --ink:#f4f1ea;
-  --mute:#a09a8e;
-  --line:#f4f1ea;
-  --acc:#ff7043;
+  --bg:#15130f;
+  --panel:#201d18;
+  --ink:#f1ece2;
+  --mute:#9b9486;
+  --line:#3a342b;
+  --acc:#ff8a3d;
   --scope:#0b0a08;
   --trace:#ffb347;
   --grid:#2a251e;
-  --shadow: 4px 4px 0px #f4f1ea;
-  --shadow-sm: 2px 2px 0px #f4f1ea;
+  --shadow: 3px 3px 0px #2a251e;
+  --shadow-sm: 2px 2px 0px #2a251e;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.5}
 main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
-h1{font-size:26px;font-weight:900;margin:0 0 4px;letter-spacing:-0.5px}
-.sub{color:var(--mute);font-size:14px;margin:0 0 20px;font-weight:500}
-.card{background:var(--panel);border:3px solid var(--line);border-radius:0px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+h1{font-size:24px;font-weight:900;margin:0 0 4px;letter-spacing:-0.5px}
+.sub{color:var(--mute);font-size:13px;margin:0 0 16px;font-weight:500}
+
+/* 카드의 테두리를 2px로 얇게 하고 그림자도 부드럽게 변경 */
+.card{background:var(--panel);border:2px solid var(--line);border-radius:0px;padding:14px;margin-bottom:14px;box-shadow:var(--shadow)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.lbl{font-size:13px;font-weight:700;color:var(--ink);margin-right:2px;text-transform:uppercase}
+.lbl{font-size:12px;font-weight:700;color:var(--mute);margin-right:2px;text-transform:uppercase}
 
 button,select{
   font:inherit;
@@ -67,14 +69,14 @@ button,select{
   background:var(--panel);
   border:2px solid var(--line);
   border-radius:0px;
-  padding:8px 14px;
+  padding:7px 12px;
   cursor:pointer;
   box-shadow:var(--shadow-sm);
   transition: transform 0.1s, box-shadow 0.1s;
 }
 button:hover{
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--line);
+  box-shadow: 2px 2px 0px var(--line);
 }
 button:active{
   transform: translate(1px, 1px);
@@ -90,31 +92,31 @@ button.big{
   border-color:var(--line);
   color:#fff;
   font-weight:900;
-  padding:10px 20px;
-  font-size:15px;
+  padding:9px 18px;
+  font-size:14px;
 }
-.flow{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.04em;margin:2px 0 12px;background:var(--acc);display:inline-block;padding:3px 6px;border:2px solid var(--line)}
+.flow{font-size:12px;font-weight:700;color:var(--mute);letter-spacing:.04em;margin:2px 0 10px}
 .scope{background:var(--scope);border:2px solid var(--line);overflow:hidden}
 canvas{display:block;width:100%}
 #wave{height:170px}#spec{height:90px;border-top:2px solid var(--line)}
-.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.pedal{border:3px solid var(--line);padding:12px 14px;background:var(--panel);box-shadow:var(--shadow-sm)}
-.pedal.off{opacity:.6}
-.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:2px solid var(--line);padding-bottom:6px}
-.ph b{font-size:16px;font-weight:900}.ph small{display:block;color:var(--mute);font-size:11px;font-weight:600}
-.led{width:36px;height:22px;border-radius:0px;padding:0;position:relative;border:2px solid var(--line);background:var(--bg)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.pedal{border:2px solid var(--line);padding:10px 12px;background:var(--panel);box-shadow:var(--shadow-sm)}
+.pedal.off{opacity:.55}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.ph b{font-size:15px;font-weight:900}.ph small{display:block;color:var(--mute);font-size:11px;font-weight:600}
+.led{width:34px;height:20px;border-radius:0px;padding:0;position:relative;border:2px solid var(--line);background:var(--bg)}
 .led::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:0px;background:var(--mute);transition:.1s}
-.led.on::after{left:16px;background:var(--acc);border:1px solid var(--line)}
-.ctl{display:grid;grid-template-columns:62px 1fr 38px;gap:6px;align-items:center;font-size:12px;font-weight:600;margin:6px 0}
-.ctl span:last-child{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--acc);height:8px;background:var(--bg);border:2px solid var(--line)}
-#msg{font-size:13px;font-weight:700;color:var(--acc);min-height:18px;margin-top:8px}
+.led.on::after{left:14px;background:var(--acc);border:1px solid var(--line)}
+.ctl{display:grid;grid-template-columns:62px 1fr 38px;gap:6px;align-items:center;font-size:12px;font-weight:600;margin:4px 0}
+.ctl span:last-child{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc);height:6px;background:var(--bg);border:1px solid var(--line)}
+#msg{font-size:12px;font-weight:700;color:var(--acc);min-height:18px;margin-top:6px}
 .note{font-size:12px;font-weight:500;color:var(--mute)}
 </style>
 </head>
 <body>
 <main>
-<h1>TONE LAB</h1>
+<h1>Tone Lab</h1>
 <p class="sub">일렉기타,베이스 톤 시뮬레이터 — 가상 G 코드나 실제 악기 입력을 FX, AMP, CAB, DLY, REV에 통과시키고 소리의 파형을 확인해보자</p>
 
 <div class="card">
@@ -126,27 +128,27 @@ input[type=range]{width:100%;accent-color:var(--acc);height:8px;background:var(-
     <button id="m-guitar" class="on">기타</button>
     <button id="m-bass">베이스</button>
   </div>
-  <div class="row" style="margin-top:12px">
+  <div class="row" style="margin-top:10px">
     <button class="big" id="strum">▶ G 코드 스트럼</button>
     <button id="auto">자동 반복</button>
     <select id="dev" title="오디오 입력 장치"><option value="">기본 입력 장치</option></select>
   </div>
-  <div class="row" style="margin-top:12px">
+  <div class="row" style="margin-top:10px">
     <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Input</span><input type="range" id="inG" min="0" max="2" step=".01" value="1"><span id="inGv">1.0</span></div>
     <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Master</span><input type="range" id="mst" min="0" max="1" step=".01" value=".7"><span id="mstv">0.7</span></div>
   </div>
   <div id="msg"></div>
-  <div class="note" style="margin-top:8px">실제 입력은 오인페, 하울링 방지를 위해 이어폰, 헤드폰을 권장</div>
+  <div class="note">실제 입력은 오인페, 하울링 방지를 위해 이어폰, 헤드폰을 권장</div>
 </div>
 
 <div class="card">
   <div class="scope"><canvas id="wave"></canvas><canvas id="spec"></canvas></div>
-  <div class="note" style="margin-top:8px">위: 출력 파형(오실로스코프) · 아래: 주파수 스펙트럼 (40Hz–12kHz)</div>
+  <div class="note" style="margin-top:6px">위: 출력 파형(오실로스코프) · 아래: 주파수 스펙트럼 (40Hz–12kHz)</div>
 </div>
 
 <div class="card">
-  <div class="row" style="margin-bottom:10px"><span class="lbl">프리셋</span><span id="presets" class="row"></span></div>
-  <div><span class="flow">INPUT → FX → AMP → CAB → DLY → REV → OUT</span></div>
+  <div class="row" style="margin-bottom:8px"><span class="lbl">프리셋</span><span id="presets" class="row"></span></div>
+  <div class="flow">INPUT → FX → AMP → CAB → DLY → REV → OUT</div>
   <div class="board" id="board"></div>
 </div>
 </main>
