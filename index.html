@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tone Lab — 기타·베이스 톤 시뮬레이터</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f1ea;--panel:#fffdf8;--ink:#1d1b18;--mute:#6f6a60;--line:#d9d3c6;--acc:#d9480f;--scope:#14110d;--trace:#ffb347;--grid:#3a342b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15130f;--panel:#201d18;--ink:#f1ece2;--mute:#9b9486;--line:#383228;--acc:#ff8a3d;--scope:#0b0a08;--trace:#ffb347;--grid:#2a251e}}
+:root[data-theme="dark"]{--bg:#15130f;--panel:#201d18;--ink:#f1ece2;--mute:#9b9486;--line:#383228;--acc:#ff8a3d;--scope:#0b0a08;--trace:#ffb347;--grid:#2a251e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.5}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mute);font-size:13px;margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font-size:12px;color:var(--mute);margin-right:2px}
+button,select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:7px 12px;cursor:pointer}
+button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+button.big{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;padding:9px 18px}
+.flow{font-size:12px;color:var(--mute);letter-spacing:.04em;margin:2px 0 10px}
+.scope{background:var(--scope);border-radius:12px;overflow:hidden}
+canvas{display:block;width:100%}
+#wave{height:170px}#spec{height:90px;border-top:1px solid var(--grid)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.pedal{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.pedal.off{opacity:.55}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ph b{font-size:15px}.ph small{display:block;color:var(--mute);font-size:11px;font-weight:400}
+.led{width:34px;height:20px;border-radius:10px;padding:0;position:relative}
+.led::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--mute);transition:.15s}
+.led.on::after{left:16px;background:#fff}
+.ctl{display:grid;grid-template-columns:62px 1fr 38px;gap:6px;align-items:center;font-size:12px;margin:4px 0}
+.ctl span:last-child{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+#msg{font-size:12px;color:var(--acc);min-height:18px;margin-top:6px}
+.note{font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<h1>🎸 Tone Lab</h1>
+<p class="sub">일렉기타·베이스 톤 시뮬레이터 — 가상 G 코드 또는 실제 악기 입력을 FX · AMP · CAB · DLY · REV에 통과시켜 파형까지 확인해요.</p>
+
+<div class="card">
+  <div class="row">
+    <span class="lbl">소스</span>
+    <button id="s-virtual" class="on">가상 기타</button>
+    <button id="s-live">실제 입력</button>
+    <span class="lbl" style="margin-left:10px">악기</span>
+    <button id="m-guitar" class="on">기타</button>
+    <button id="m-bass">베이스</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <button class="big" id="strum">▶ G 코드 스트럼</button>
+    <button id="auto">자동 반복</button>
+    <select id="dev" title="오디오 입력 장치"><option value="">기본 입력 장치</option></select>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Input</span><input type="range" id="inG" min="0" max="2" step=".01" value="1"><span id="inGv">1.0</span></div>
+    <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Master</span><input type="range" id="mst" min="0" max="1" step=".01" value=".7"><span id="mstv">0.7</span></div>
+  </div>
+  <div id="msg"></div>
+  <div class="note">실제 입력은 오디오 인터페이스 연결을 권장하고, 하울링 방지를 위해 꼭 이어폰·헤드폰을 사용하세요.</div>
+</div>
+
+<div class="card">
+  <div class="scope"><canvas id="wave"></canvas><canvas id="spec"></canvas></div>
+  <div class="note" style="margin-top:6px">위: 출력 파형(오실로스코프) · 아래: 주파수 스펙트럼 (40Hz–12kHz)</div>
+</div>
+
+<div class="card">
+  <div class="row" style="margin-bottom:8px"><span class="lbl">프리셋</span><span id="presets" class="row"></span></div>
+  <div class="flow">INPUT → FX → AMP → CAB → DLY → REV → OUT</div>
+  <div class="board" id="board"></div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const defs={
+ FX:{t:'FX',s:'Chorus',p:[['rate','Rate',.1,8,1.2,.1],['depth','Depth',0,1,.5,.01],['mix','Mix',0,1,.5,.01]]},
+ AMP:{t:'AMP',s:'Overdrive',p:[['gain','Gain',0,1,.45,.01],['tone','Tone',0,1,.5,.01],['level','Level',0,1,.6,.01]]},
+ CAB:{t:'CAB',s:'Speaker',p:[['size','Size',0,1,.5,.01],['air','Air',0,1,.5,.01]]},
+ DLY:{t:'DLY',s:'Echo',p:[['time','Time',.05,1,.38,.01],['fb','Feedback',0,.9,.35,.01],['mix','Mix',0,1,.3,.01]]},
+ REV:{t:'REV',s:'Room/Hall',p:[['decay','Decay',.3,5,1.8,.1],['mix','Mix',0,1,.25,.01]]}
+};
+const order=['FX','AMP','CAB','DLY','REV'];
+const S={};order.forEach(k=>{S[k]={on:k!=='FX'&&k!=='DLY',v:Object.fromEntries(defs[k].p.map(p=>[p[0],p[4]]))}});
+const PRE={
+ 'Clean':{FX:{on:1,mix:.35},AMP:{on:1,gain:.1,tone:.55,level:.6},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.22}},
+ 'Crunch':{FX:{on:0},AMP:{on:1,gain:.45,tone:.5,level:.55},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.15}},
+ 'Lead':{FX:{on:0},AMP:{on:1,gain:.8,tone:.6,level:.45},CAB:{on:1},DLY:{on:1,time:.4,fb:.4,mix:.3},REV:{on:1,mix:.25}},
+ 'Ambient':{FX:{on:1,rate:.6,depth:.7,mix:.6},AMP:{on:1,gain:.2,tone:.45,level:.6},CAB:{on:1},DLY:{on:1,time:.55,fb:.6,mix:.45},REV:{on:1,decay:4,mix:.55}}
+};
+let ctx,N={},mode='guitar',src='virtual',live=null,autoT=null,an,td,fd;
+
+// ---------- UI ----------
+function buildUI(){
+  const b=$('#board');
+  order.forEach(k=>{
+    const d=defs[k],el=document.createElement('div');el.className='pedal';el.id='p-'+k;
+    el.innerHTML=`<div class="ph"><div><b>${d.t}</b><small>${d.s}</small></div><button class="led" id="led-${k}" aria-label="${d.t} 켜기/끄기"></button></div>`+
+      d.p.map(p=>`<div class="ctl"><span>${p[1]}</span><input type="range" id="${k}-${p[0]}" min="${p[2]}" max="${p[3]}" step="${p[5]}"><span id="${k}-${p[0]}v"></span></div>`).join('');
+    b.appendChild(el);
+    $('#led-'+k).onclick=()=>{S[k].on=!S[k].on;sync();A[k]&&ctx&&A[k]()};
+    d.p.forEach(p=>{$(`#${k}-${p[0]}`).oninput=e=>{S[k].v[p[0]]=+e.target.value;sync();if(ctx){if(k==='REV'&&p[0]==='decay')return;A[k]()}};
+      if(p[0]==='decay')$(`#${k}-decay`).onchange=()=>ctx&&A.REV(true)});
+  });
+  const pr=$('#presets');
+  Object.keys(PRE).forEach(n=>{const x=document.createElement('button');x.textContent=n;x.onclick=()=>{
+    order.forEach(k=>{const o=PRE[n][k];S[k].on=!!o.on;Object.keys(o).forEach(q=>{if(q!=='on')S[k].v[q]=o[q]})});
+    sync();ctx&&applyAll(true)};pr.appendChild(x)});
+  sync();
+}
+function sync(){
+  order.forEach(k=>{
+    $('#led-'+k).classList.toggle('on',S[k].on);$('#p-'+k).classList.toggle('off',!S[k].on);
+    defs[k].p.forEach(p=>{const v=S[k].v[p[0]];$(`#${k}-${p[0]}`).value=v;$(`#${k}-${p[0]}v`).textContent=(+v).toFixed(p[5]<.05?2:1)});
+  });
+}
+
+// ---------- Audio graph ----------
+const T=(p,x)=>p.setTargetAtTime(x,ctx.currentTime,.02);
+function block(){const o={in:ctx.createGain(),out:ctx.createGain(),dry:ctx.createGain(),wet:ctx.createGain()};
+  o.in.connect(o.dry).connect(o.out);o.wet.connect(o.out);return o}
+function ensure(){
+  if(ctx){if(ctx.state!=='running')ctx.resume();return}
+  ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+  N.bus=ctx.createGain();N.inG=ctx.createGain();
+  // FX: chorus
+  const fx=N.FX=block();fx.dl=ctx.createDelay(.1);fx.dl.delayTime.value=.02;fx.lfo=ctx.createOscillator();fx.lg=ctx.createGain();
+  fx.lfo.connect(fx.lg).connect(fx.dl.delayTime);fx.lfo.start();fx.in.connect(fx.dl).connect(fx.wet);
+  // AMP: HPF -> pre gain -> tanh -> tone LPF -> level
+  const am=N.AMP=block();am.hp=ctx.createBiquadFilter();am.hp.type='highpass';am.pre=ctx.createGain();
+  am.ws=ctx.createWaveShaper();const c=new Float32Array(2048);for(let i=0;i<2048;i++){const x=i/1024-1;c[i]=Math.tanh(x*1.4)+.06*x*x*Math.sign(x)}
+  am.ws.curve=c;am.ws.oversample='4x';am.tone=ctx.createBiquadFilter();am.tone.type='lowpass';am.lv=ctx.createGain();
+  am.in.connect(am.hp).connect(am.pre).connect(am.ws).connect(am.tone).connect(am.lv).connect(am.wet);
+  // CAB: HPF + low shelf + presence + LPF
+  const cb=N.CAB=block();cb.hp=ctx.createBiquadFilter();cb.hp.type='highpass';cb.ls=ctx.createBiquadFilter();cb.ls.type='lowshelf';cb.ls.frequency.value=150;
+  cb.pk=ctx.createBiquadFilter();cb.pk.type='peaking';cb.pk.frequency.value=2500;cb.pk.Q.value=1;cb.pk.gain.value=5;
+  cb.lp=ctx.createBiquadFilter();cb.lp.type='lowpass';cb.lp.Q.value=.9;
+  cb.in.connect(cb.hp).connect(cb.ls).connect(cb.pk).connect(cb.lp).connect(cb.wet);
+  // DLY
+  const dy=N.DLY=block();dy.dl=ctx.createDelay(1.5);dy.fb=ctx.createGain();dy.fl=ctx.createBiquadFilter();dy.fl.type='lowpass';dy.fl.frequency.value=3500;
+  dy.in.connect(dy.dl).connect(dy.wet);dy.dl.connect(dy.fl).connect(dy.fb).connect(dy.dl);
+  // REV
+  const rv=N.REV=block();rv.cv=ctx.createConvolver();rv.in.connect(rv.cv).connect(rv.wet);
+  // Master + analyser
+  N.mst=ctx.createGain();N.cmp=ctx.createDynamicsCompressor();N.cmp.threshold.value=-8;N.cmp.ratio.value=8;
+  an=N.an=ctx.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=.6;td=new Float32Array(an.fftSize);fd=new Uint8Array(an.frequencyBinCount);
+  N.bus.connect(N.FX.in);N.inG.connect(N.FX.in);
+  let prev=N.FX;order.slice(1).forEach(k=>{prev.out.connect(N[k].in);prev=N[k]});
+  prev.out.connect(N.mst).connect(N.cmp).connect(an);N.cmp.connect(ctx.destination);
+  applyAll(true);
+}
+const A={
+ FX(){const f=N.FX,v=S.FX.v;T(f.lfo.frequency,v.rate);T(f.lg.gain,v.depth*.006);T(f.dry.gain,1);T(f.wet.gain,S.FX.on?v.mix:0)},
+ AMP(){const a=N.AMP,v=S.AMP.v,b=mode==='bass';a.hp.frequency.value=b?35:110;
+  T(a.pre.gain,1+v.gain*v.gain*(b?35:90));T(a.tone.frequency,(b?500:800)*Math.pow(16,v.tone));
+  T(a.lv.gain,v.level*(b?.9:.8));T(a.dry.gain,S.AMP.on?0:1);T(a.wet.gain,S.AMP.on?1:0)},
+ CAB(){const c=N.CAB,v=S.CAB.v,b=mode==='bass';c.hp.frequency.value=(b?30:70)+(1-v.size)*50;T(c.ls.gain,(v.size-.5)*12);
+  T(c.lp.frequency,3000+v.air*5000);T(c.dry.gain,S.CAB.on?0:1);T(c.wet.gain,S.CAB.on?1:0)},
+ DLY(){const d=N.DLY,v=S.DLY.v;T(d.dl.delayTime,v.time);T(d.fb.gain,v.fb);T(d.dry.gain,1);T(d.wet.gain,S.DLY.on?v.mix:0)},
+ REV(regen){const r=N.REV,v=S.REV.v;if(regen||!r.ir)makeIR(v.decay);T(r.dry.gain,1);T(r.wet.gain,S.REV.on?v.mix*1.5:0)}
+};
+function applyAll(regen){order.forEach(k=>A[k](regen))}
+function makeIR(sec){
+  const sr=ctx.sampleRate,n=Math.floor(sr*sec),ir=ctx.createBuffer(2,n,sr);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.6)}
+  N.REV.cv.buffer=ir;N.REV.ir=1;
+}
+
+// ---------- Virtual guitar (Karplus–Strong) ----------
+function ks(f,d){
+  const sr=ctx.sampleRate,n=Math.floor(sr*d),L=Math.round(sr/f),y=new Float32Array(n);let p=0;
+  for(let i=0;i<L;i++){p=p*.45+(Math.random()*2-1)*.55;y[i]=p}
+  const dec=mode==='bass'?.9985:.9973;
+  for(let i=L;i<n;i++)y[i]=dec*.5*(y[i-L]+y[i-L+1]);
+  const ab=ctx.createBuffer(1,n,sr);ab.copyToChannel(y,0);return ab;
+}
+function strum(){
+  ensure();if(src!=='virtual')setSrc('virtual');
+  const b=mode==='bass',notes=b?[49,73.42,98]:[98,123.47,146.83,196,246.94,392],t0=ctx.currentTime+.03;
+  notes.forEach((f,i)=>{const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=ks(f,2.8);g.gain.value=b?.7:.3;
+    s.connect(g).connect(N.bus);s.start(t0+i*(b?.12:.035))});
+}
+
+// ---------- Live input ----------
+async function goLive(){
+  ensure();const msg=$('#msg');msg.textContent='';
+  try{
+    const id=$('#dev').value;
+    const st=await navigator.mediaDevices.getUserMedia({audio:{deviceId:id?{exact:id}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1}});
+    stopLive();live={st,n:ctx.createMediaStreamSource(st)};live.n.connect(N.inG);
+    const ds=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput'),sel=$('#dev'),cur=sel.value;
+    sel.innerHTML='<option value="">기본 입력 장치</option>'+ds.map(d=>`<option value="${d.deviceId}">${d.label||'입력 장치'}</option>`).join('');sel.value=cur;
+    msg.textContent='실제 입력 연결됨 — 이어폰을 사용하세요.';
+  }catch(e){
+    msg.textContent='마이크/오디오 입력을 사용할 수 없어요 ('+(e.name||'오류')+'). 권한을 허용했는지 확인하고, 임베드 화면이면 새 탭에서 열어 보세요.';
+    setSrc('virtual',true);
+  }
+}
+function stopLive(){if(live){live.n.disconnect();live.st.getTracks().forEach(t=>t.stop());live=null}}
+function setSrc(s,skip){
+  src=s;$('#s-virtual').classList.toggle('on',s==='virtual');$('#s-live').classList.toggle('on',s==='live');
+  if(s==='live'){setAuto(false);if(!skip)goLive()}else stopLive();
+}
+function setAuto(on){clearInterval(autoT);autoT=null;$('#auto').classList.toggle('on',on);
+  if(on){strum();autoT=setInterval(strum,2600)}}
+function setMode(m){mode=m;$('#m-guitar').classList.toggle('on',m==='guitar');$('#m-bass').classList.toggle('on',m==='bass');ctx&&applyAll()}
+
+$('#s-virtual').onclick=()=>setSrc('virtual');$('#s-live').onclick=()=>setSrc('live');
+$('#m-guitar').onclick=()=>setMode('guitar');$('#m-bass').onclick=()=>setMode('bass');
+$('#strum').onclick=strum;$('#auto').onclick=()=>{ensure();if(src!=='virtual')setSrc('virtual');setAuto(!autoT)};
+$('#dev').onchange=()=>src==='live'&&goLive();
+$('#inG').oninput=e=>{$('#inGv').textContent=(+e.target.value).toFixed(1);ctx&&T(N.inG.gain,+e.target.value)};
+$('#mst').oninput=e=>{$('#mstv').textContent=(+e.target.value).toFixed(1);ctx&&T(N.mst.gain,+e.target.value)};
+const _ens=ensure;ensure=function(){const was=!!ctx;_ens();if(!was){T(N.inG.gain,+$('#inG').value);N.mst.gain.value=+$('#mst').value}};
+
+// ---------- Visualizer ----------
+const wv=$('#wave'),sp=$('#spec');let col={},fr=0;
+function fit(c){const r=devicePixelRatio||1,w=Math.round(c.clientWidth*r),h=Math.round(c.clientHeight*r);if(c.width!==w||c.height!==h){c.width=w;c.height=h}return[w,h,r]}
+function draw(){
+  requestAnimationFrame(draw);
+  if(fr++%60===0){const cs=getComputedStyle(document.documentElement);col={t:cs.getPropertyValue('--trace').trim(),g:cs.getPropertyValue('--grid').trim()}}
+  let[w,h]=fit(wv),c=wv.getContext('2d');c.clearRect(0,0,w,h);
+  c.strokeStyle=col.g;c.lineWidth=1;c.beginPath();for(let i=1;i<4;i++){c.moveTo(0,h*i/4);c.lineTo(w,h*i/4)}c.stroke();
+  c.strokeStyle=col.t;c.lineWidth=2*(devicePixelRatio||1)*.8;c.beginPath();
+  if(an){an.getFloatTimeDomainData(td);let s=0;for(let i=1;i<td.length/2;i++){if(td[i-1]<0&&td[i]>=0){s=i;break}}
+    const len=td.length/2;for(let i=0;i<len;i++){const x=i/len*w,y=h/2-td[s+i]*h*.45;i?c.lineTo(x,y):c.moveTo(x,y)}}
+  else{c.moveTo(0,h/2);c.lineTo(w,h/2)}
+  c.stroke();
+  [w,h]=fit(sp);c=sp.getContext('2d');c.clearRect(0,0,w,h);
+  if(!an)return;an.getByteFrequencyData(fd);
+  const B=64,nyq=ctx.sampleRate/2,bw=w/B;c.fillStyle=col.t;
+  for(let i=0;i<B;i++){const f0=40*Math.pow(300,i/B),f1=40*Math.pow(300,(i+1)/B);
+    let a=Math.floor(f0/nyq*fd.length),z=Math.max(a+1,Math.floor(f1/nyq*fd.length)),m=0;
+    for(let k=a;k<z;k++)m=Math.max(m,fd[k]);const bh=m/255*h;c.fillRect(i*bw+1,h-bh,bw-2,bh)}
+}
+buildUI();draw();
+</script>
+</body>
+</html>
