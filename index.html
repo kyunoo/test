@@ -5,44 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tone Lab — 기타,베이스 톤 시뮬레이터</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
---bg:#f4f1ea;--panel:#fffdf8;--ink:#1d1b18;--mute:#6f6a60;--line:#d9d3c6;--acc:#d9480f;--scope:#14110d;--trace:#ffb347;--grid:#3a342b}
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f4f1ea;
+  --panel:#fffdf8;
+  --ink:#1d1b18;
+  --mute:#6f6a60;
+  --line:#1d1b18;
+  --acc:#ff5722;
+  --scope:#14110d;
+  --trace:#ffb347;
+  --grid:#3a342b;
+  --shadow: 4px 4px 0px #1d1b18;
+  --shadow-sm: 2px 2px 0px #1d1b18;
+}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15130f;--panel:#201d18;--ink:#f1ece2;--mute:#9b9486;--line:#383228;--acc:#ff8a3d;--scope:#0b0a08;--trace:#ffb347;--grid:#2a251e}}
-:root[data-theme="dark"]{--bg:#15130f;--panel:#201d18;--ink:#f1ece2;--mute:#9b9486;--line:#383228;--acc:#ff8a3d;--scope:#0b0a08;--trace:#ffb347;--grid:#2a251e}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121212;
+    --panel:#1e1e1e;
+    --ink:#f4f1ea;
+    --mute:#a09a8e;
+    --line:#f4f1ea;
+    --acc:#ff7043;
+    --scope:#0b0a08;
+    --trace:#ffb347;
+    --grid:#2a251e;
+    --shadow: 4px 4px 0px #f4f1ea;
+    --shadow-sm: 2px 2px 0px #f4f1ea;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121212;
+  --panel:#1e1e1e;
+  --ink:#f4f1ea;
+  --mute:#a09a8e;
+  --line:#f4f1ea;
+  --acc:#ff7043;
+  --scope:#0b0a08;
+  --trace:#ffb347;
+  --grid:#2a251e;
+  --shadow: 4px 4px 0px #f4f1ea;
+  --shadow-sm: 2px 2px 0px #f4f1ea;
+}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.5}
 main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
-h1{font-size:22px;margin:0 0 2px}
-.sub{color:var(--mute);font-size:13px;margin:0 0 16px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+h1{font-size:26px;font-weight:900;margin:0 0 4px;letter-spacing:-0.5px}
+.sub{color:var(--mute);font-size:14px;margin:0 0 20px;font-weight:500}
+.card{background:var(--panel);border:3px solid var(--line);border-radius:0px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.lbl{font-size:12px;color:var(--mute);margin-right:2px}
-button,select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:7px 12px;cursor:pointer}
-button.on{background:var(--acc);border-color:var(--acc);color:#fff}
-button.big{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600;padding:9px 18px}
-.flow{font-size:12px;color:var(--mute);letter-spacing:.04em;margin:2px 0 10px}
-.scope{background:var(--scope);border-radius:12px;overflow:hidden}
+.lbl{font-size:13px;font-weight:700;color:var(--ink);margin-right:2px;text-transform:uppercase}
+
+button,select{
+  font:inherit;
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+  background:var(--panel);
+  border:2px solid var(--line);
+  border-radius:0px;
+  padding:8px 14px;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+button:hover{
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--line);
+}
+button:active{
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px var(--line);
+}
+button.on{
+  background:var(--acc);
+  border-color:var(--line);
+  color:#fff;
+}
+button.big{
+  background:var(--acc);
+  border-color:var(--line);
+  color:#fff;
+  font-weight:900;
+  padding:10px 20px;
+  font-size:15px;
+}
+.flow{font-size:12px;font-weight:700;color:var(--ink);letter-spacing:.04em;margin:2px 0 12px;background:var(--acc);display:inline-block;padding:3px 6px;border:2px solid var(--line)}
+.scope{background:var(--scope);border:2px solid var(--line);overflow:hidden}
 canvas{display:block;width:100%}
-#wave{height:170px}#spec{height:90px;border-top:1px solid var(--grid)}
-.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.pedal{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg)}
-.pedal.off{opacity:.55}
-.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ph b{font-size:15px}.ph small{display:block;color:var(--mute);font-size:11px;font-weight:400}
-.led{width:34px;height:20px;border-radius:10px;padding:0;position:relative}
-.led::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--mute);transition:.15s}
-.led.on::after{left:16px;background:#fff}
-.ctl{display:grid;grid-template-columns:62px 1fr 38px;gap:6px;align-items:center;font-size:12px;margin:4px 0}
-.ctl span:last-child{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
-input[type=range]{width:100%;accent-color:var(--acc)}
-#msg{font-size:12px;color:var(--acc);min-height:18px;margin-top:6px}
-.note{font-size:12px;color:var(--mute)}
+#wave{height:170px}#spec{height:90px;border-top:2px solid var(--line)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.pedal{border:3px solid var(--line);padding:12px 14px;background:var(--panel);box-shadow:var(--shadow-sm)}
+.pedal.off{opacity:.6}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:2px solid var(--line);padding-bottom:6px}
+.ph b{font-size:16px;font-weight:900}.ph small{display:block;color:var(--mute);font-size:11px;font-weight:600}
+.led{width:36px;height:22px;border-radius:0px;padding:0;position:relative;border:2px solid var(--line);background:var(--bg)}
+.led::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:0px;background:var(--mute);transition:.1s}
+.led.on::after{left:16px;background:var(--acc);border:1px solid var(--line)}
+.ctl{display:grid;grid-template-columns:62px 1fr 38px;gap:6px;align-items:center;font-size:12px;font-weight:600;margin:6px 0}
+.ctl span:last-child{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc);height:8px;background:var(--bg);border:2px solid var(--line)}
+#msg{font-size:13px;font-weight:700;color:var(--acc);min-height:18px;margin-top:8px}
+.note{font-size:12px;font-weight:500;color:var(--mute)}
 </style>
 </head>
 <body>
 <main>
-<h1>Tone Lab</h1>
+<h1>TONE LAB</h1>
 <p class="sub">일렉기타,베이스 톤 시뮬레이터 — 가상 G 코드나 실제 악기 입력을 FX, AMP, CAB, DLY, REV에 통과시키고 소리의 파형을 확인해보자</p>
 
 <div class="card">
@@ -54,27 +126,27 @@ input[type=range]{width:100%;accent-color:var(--acc)}
     <button id="m-guitar" class="on">기타</button>
     <button id="m-bass">베이스</button>
   </div>
-  <div class="row" style="margin-top:10px">
+  <div class="row" style="margin-top:12px">
     <button class="big" id="strum">▶ G 코드 스트럼</button>
     <button id="auto">자동 반복</button>
     <select id="dev" title="오디오 입력 장치"><option value="">기본 입력 장치</option></select>
   </div>
-  <div class="row" style="margin-top:10px">
+  <div class="row" style="margin-top:12px">
     <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Input</span><input type="range" id="inG" min="0" max="2" step=".01" value="1"><span id="inGv">1.0</span></div>
     <div class="ctl" style="grid-template-columns:62px 150px 38px"><span>Master</span><input type="range" id="mst" min="0" max="1" step=".01" value=".7"><span id="mstv">0.7</span></div>
   </div>
   <div id="msg"></div>
-  <div class="note">실제 입력은 오인페, 하울링 방지를 위해 이어폰, 헤드폰을 권장</div>
+  <div class="note" style="margin-top:8px">실제 입력은 오인페, 하울링 방지를 위해 이어폰, 헤드폰을 권장</div>
 </div>
 
 <div class="card">
   <div class="scope"><canvas id="wave"></canvas><canvas id="spec"></canvas></div>
-  <div class="note" style="margin-top:6px">위: 출력 파형(오실로스코프) · 아래: 주파수 스펙트럼 (40Hz–12kHz)</div>
+  <div class="note" style="margin-top:8px">위: 출력 파형(오실로스코프) · 아래: 주파수 스펙트럼 (40Hz–12kHz)</div>
 </div>
 
 <div class="card">
-  <div class="row" style="margin-bottom:8px"><span class="lbl">프리셋</span><span id="presets" class="row"></span></div>
-  <div class="flow">INPUT → FX → AMP → CAB → DLY → REV → OUT</div>
+  <div class="row" style="margin-bottom:10px"><span class="lbl">프리셋</span><span id="presets" class="row"></span></div>
+  <div><span class="flow">INPUT → FX → AMP → CAB → DLY → REV → OUT</span></div>
   <div class="board" id="board"></div>
 </div>
 </main>
@@ -82,19 +154,19 @@ input[type=range]{width:100%;accent-color:var(--acc)}
 <script>
 const $=s=>document.querySelector(s);
 const defs={
- FX:{t:'FX',s:'Chorus',p:[['rate','Rate',.1,8,1.2,.1],['depth','Depth',0,1,.5,.01],['mix','Mix',0,1,.5,.01]]},
- AMP:{t:'AMP',s:'Overdrive',p:[['gain','Gain',0,1,.45,.01],['tone','Tone',0,1,.5,.01],['level','Level',0,1,.6,.01]]},
- CAB:{t:'CAB',s:'Speaker',p:[['size','Size',0,1,.5,.01],['air','Air',0,1,.5,.01]]},
- DLY:{t:'DLY',s:'Echo',p:[['time','Time',.05,1,.38,.01],['fb','Feedback',0,.9,.35,.01],['mix','Mix',0,1,.3,.01]]},
- REV:{t:'REV',s:'Room/Hall',p:[['decay','Decay',.3,5,1.8,.1],['mix','Mix',0,1,.25,.01]]}
+  FX:{t:'FX',s:'Chorus',p:[['rate','Rate',.1,8,1.2,.1],['depth','Depth',0,1,.5,.01],['mix','Mix',0,1,.5,.01]]},
+  AMP:{t:'AMP',s:'Overdrive',p:[['gain','Gain',0,1,.45,.01],['tone','Tone',0,1,.5,.01],['level','Level',0,1,.6,.01]]},
+  CAB:{t:'CAB',s:'Speaker',p:[['size','Size',0,1,.5,.01],['air','Air',0,1,.5,.01]]},
+  DLY:{t:'DLY',s:'Echo',p:[['time','Time',.05,1,.38,.01],['fb','Feedback',0,.9,.35,.01],['mix','Mix',0,1,.3,.01]]},
+  REV:{t:'REV',s:'Room/Hall',p:[['decay','Decay',.3,5,1.8,.1],['mix','Mix',0,1,.25,.01]]}
 };
 const order=['FX','AMP','CAB','DLY','REV'];
 const S={};order.forEach(k=>{S[k]={on:k!=='FX'&&k!=='DLY',v:Object.fromEntries(defs[k].p.map(p=>[p[0],p[4]]))}});
 const PRE={
- 'Clean':{FX:{on:1,mix:.35},AMP:{on:1,gain:.1,tone:.55,level:.6},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.22}},
- 'Crunch':{FX:{on:0},AMP:{on:1,gain:.45,tone:.5,level:.55},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.15}},
- 'Lead':{FX:{on:0},AMP:{on:1,gain:.8,tone:.6,level:.45},CAB:{on:1},DLY:{on:1,time:.4,fb:.4,mix:.3},REV:{on:1,mix:.25}},
- 'Ambient':{FX:{on:1,rate:.6,depth:.7,mix:.6},AMP:{on:1,gain:.2,tone:.45,level:.6},CAB:{on:1},DLY:{on:1,time:.55,fb:.6,mix:.45},REV:{on:1,decay:4,mix:.55}}
+  'Clean':{FX:{on:1,mix:.35},AMP:{on:1,gain:.1,tone:.55,level:.6},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.22}},
+  'Crunch':{FX:{on:0},AMP:{on:1,gain:.45,tone:.5,level:.55},CAB:{on:1},DLY:{on:0},REV:{on:1,mix:.15}},
+  'Lead':{FX:{on:0},AMP:{on:1,gain:.8,tone:.6,level:.45},CAB:{on:1},DLY:{on:1,time:.4,fb:.4,mix:.3},REV:{on:1,mix:.25}},
+  'Ambient':{FX:{on:1,rate:.6,depth:.7,mix:.6},AMP:{on:1,gain:.2,tone:.45,level:.6},CAB:{on:1},DLY:{on:1,time:.55,fb:.6,mix:.45},REV:{on:1,decay:4,mix:.55}}
 };
 let ctx,N={},mode='guitar',src='virtual',live=null,autoT=null,an,td,fd;
 
@@ -158,14 +230,14 @@ function ensure(){
   applyAll(true);
 }
 const A={
- FX(){const f=N.FX,v=S.FX.v;T(f.lfo.frequency,v.rate);T(f.lg.gain,v.depth*.006);T(f.dry.gain,1);T(f.wet.gain,S.FX.on?v.mix:0)},
- AMP(){const a=N.AMP,v=S.AMP.v,b=mode==='bass';a.hp.frequency.value=b?35:110;
-  T(a.pre.gain,1+v.gain*v.gain*(b?35:90));T(a.tone.frequency,(b?500:800)*Math.pow(16,v.tone));
-  T(a.lv.gain,v.level*(b?.9:.8));T(a.dry.gain,S.AMP.on?0:1);T(a.wet.gain,S.AMP.on?1:0)},
- CAB(){const c=N.CAB,v=S.CAB.v,b=mode==='bass';c.hp.frequency.value=(b?30:70)+(1-v.size)*50;T(c.ls.gain,(v.size-.5)*12);
-  T(c.lp.frequency,3000+v.air*5000);T(c.dry.gain,S.CAB.on?0:1);T(c.wet.gain,S.CAB.on?1:0)},
- DLY(){const d=N.DLY,v=S.DLY.v;T(d.dl.delayTime,v.time);T(d.fb.gain,v.fb);T(d.dry.gain,1);T(d.wet.gain,S.DLY.on?v.mix:0)},
- REV(regen){const r=N.REV,v=S.REV.v;if(regen||!r.ir)makeIR(v.decay);T(r.dry.gain,1);T(r.wet.gain,S.REV.on?v.mix*1.5:0)}
+  FX(){const f=N.FX,v=S.FX.v;T(f.lfo.frequency,v.rate);T(f.lg.gain,v.depth*.006);T(f.dry.gain,1);T(f.wet.gain,S.FX.on?v.mix:0)},
+  AMP(){const a=N.AMP,v=S.AMP.v,b=mode==='bass';a.hp.frequency.value=b?35:110;
+   T(a.pre.gain,1+v.gain*v.gain*(b?35:90));T(a.tone.frequency,(b?500:800)*Math.pow(16,v.tone));
+   T(a.lv.gain,v.level*(b?.9:.8));T(a.dry.gain,S.AMP.on?0:1);T(a.wet.gain,S.AMP.on?1:0)},
+  CAB(){const c=N.CAB,v=S.CAB.v,b=mode==='bass';c.hp.frequency.value=(b?30:70)+(1-v.size)*50;T(c.ls.gain,(v.size-.5)*12);
+   T(c.lp.frequency,3000+v.air*5000);T(c.dry.gain,S.CAB.on?0:1);T(c.wet.gain,S.CAB.on?1:0)},
+  DLY(){const d=N.DLY,v=S.DLY.v;T(d.dl.delayTime,v.time);T(d.fb.gain,v.fb);T(d.dry.gain,1);T(d.wet.gain,S.DLY.on?v.mix:0)},
+  REV(regen){const r=N.REV,v=S.REV.v;if(regen||!r.ir)makeIR(v.decay);T(r.dry.gain,1);T(r.wet.gain,S.REV.on?v.mix*1.5:0)}
 };
 function applyAll(regen){order.forEach(k=>A[k](regen))}
 function makeIR(sec){
